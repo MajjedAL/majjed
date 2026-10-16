@@ -1,0 +1,511 @@
+<title>Road to Doomsday</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap">
+<style>
+/* Layout concept: a long viewing queue. Each era is a ruled band with its year range set large on the left and the films listed as rows on the right, ending in a checkable 12-title shortcut. */
+:root {
+  --bg: #0C1312;
+  --surface: #121B1A;
+  --fg: #E3EBE8;
+  --muted: #92A29E;
+  --line: #263230;
+  --accent: #5CC0A0;
+  --accent-ink: #06130F;
+  --accent-soft: #17302A;
+  --display: 'Big Shoulders Display', 'Arial Narrow', Impact, sans-serif;
+  --body: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 1.125rem/1.6 var(--body);
+  padding-block: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1120px; margin-inline: auto; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+p { margin: 0; }
+a { color: var(--accent); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.eyebrow, .label, .yr, .tag, .legend, .count, .foot-note {
+  font-family: var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+/* Hero */
+.hero { padding-block: clamp(2.5rem, 7vw, 5rem) clamp(2rem, 5vw, 3.5rem); }
+.eyebrow { color: var(--muted); margin-bottom: 1.25rem; }
+h1 {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(2.9rem, 9.5vw, 6.6rem);
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  max-width: 16ch;
+}
+h1 span { color: var(--accent); }
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+  gap: clamp(1.5rem, 5vw, 4rem);
+  margin-top: clamp(1.75rem, 4vw, 3rem);
+  align-items: start;
+}
+.lede { font-size: 1.3rem; line-height: 1.5; max-width: 38em; }
+.lede + .lede { margin-top: 1rem; color: var(--muted); font-size: 1.125rem; }
+.skip { display: inline-block; margin-top: 1.5rem; font-family: var(--mono); font-size: 0.85rem; letter-spacing: 0.04em; }
+.release { border-top: 3px solid var(--accent); padding-top: 1rem; }
+.release .label { color: var(--muted); display: block; }
+.release .date {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(2.4rem, 5vw, 3.4rem);
+  line-height: 1;
+  text-transform: uppercase;
+  margin-top: 0.5rem;
+}
+.release .days { font-family: var(--mono); font-size: 0.95rem; color: var(--accent); margin-top: 0.6rem; min-height: 1.4em; }
+.release .src { color: var(--muted); font-size: 0.95rem; margin-top: 0.75rem; line-height: 1.45; }
+
+/* Legend */
+.path-intro {
+  border-top: 1px solid var(--line);
+  padding-block: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 2rem;
+  align-items: center;
+  justify-content: space-between;
+}
+.path-intro h2 { font-family: var(--display); font-weight: 700; font-size: 1.1rem; letter-spacing: 0.12em; text-transform: uppercase; }
+.legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 0.5rem; }
+
+/* Tags */
+.tag { display: inline-block; padding: 0.3rem 0.55rem; border-radius: 2px; white-space: nowrap; }
+.tag.core { background: var(--accent); color: var(--accent-ink); }
+.tag.extra { border: 1px solid var(--line); color: var(--muted); }
+
+/* Eras */
+.era {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(1.25rem, 4vw, 3.5rem);
+  border-top: 1px solid var(--line);
+  padding-block: clamp(2rem, 5vw, 3.5rem);
+}
+.era-head, .era-body { min-width: 0; }
+.years {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: clamp(3.2rem, 8vw, 5.6rem);
+  line-height: 0.9;
+  color: var(--accent);
+  letter-spacing: 0.005em;
+  font-variant-numeric: tabular-nums;
+}
+.era h2 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(1.7rem, 3.4vw, 2.4rem);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-top: 0.9rem;
+  max-width: 14ch;
+}
+.era-body > p { max-width: 36em; }
+.era-body > p + p { margin-top: 0.9rem; }
+.aside { color: var(--muted); }
+
+.films { list-style: none; margin: 1.75rem 0 0; padding: 0; border-top: 1px solid var(--line); }
+.film {
+  display: grid;
+  grid-template-columns: 3.6rem minmax(0, 1fr);
+  gap: 0.25rem 1rem;
+  align-items: baseline;
+  padding-block: 0.85rem;
+  border-bottom: 1px solid var(--line);
+}
+.yr { color: var(--muted); font-variant-numeric: tabular-nums; }
+.ttl {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.4rem;
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
+}
+.note { display: block; font-style: italic; color: var(--muted); font-size: 1rem; line-height: 1.4; margin-top: 0.2rem; }
+.film .tag { align-self: start; }
+
+/* Doom */
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 1.75rem; border-top: 1px solid var(--line); }
+.pair > div { padding: 1rem 1rem 1.1rem 0; min-width: 0; }
+.pair > div + div { padding-left: 1rem; border-left: 1px solid var(--line); }
+.pair h3 { font-family: var(--display); font-weight: 800; font-size: 1.7rem; text-transform: uppercase; line-height: 1; letter-spacing: 0.02em; }
+.pair .label { color: var(--muted); display: block; margin-top: 0.4rem; }
+.pair p { margin-top: 0.7rem; font-size: 1.05rem; line-height: 1.5; }
+.caution { margin-top: 1.5rem; padding: 1rem 1.1rem; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; max-width: 36em; }
+.caution .label { color: var(--accent); display: block; margin-bottom: 0.4rem; }
+.caution p { font-size: 1.05rem; line-height: 1.5; }
+
+/* Watchlist */
+.watch { border-top: 3px solid var(--accent); padding-block: clamp(2rem, 5vw, 3.5rem); }
+.watch-head { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(1.25rem, 4vw, 3.5rem); align-items: end; }
+.watch h2 {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: clamp(2.6rem, 7vw, 4.6rem);
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+.watch-head p { color: var(--muted); max-width: 36em; }
+.progress { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.25rem; margin-top: 2rem; }
+.bar { flex: 1 1 14rem; height: 8px; background: var(--accent-soft); border-radius: 4px; overflow: hidden; min-width: 0; }
+.bar i { display: block; height: 100%; width: 0; background: var(--accent); }
+@media (prefers-reduced-motion: no-preference) { .bar i { transition: width 0.3s ease; } }
+.count { color: var(--fg); font-variant-numeric: tabular-nums; }
+.reset {
+  font: inherit; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;
+  background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 3px; padding: 0.4rem 0.7rem; cursor: pointer;
+}
+.reset:hover { color: var(--fg); border-color: var(--muted); }
+.queue { list-style: none; margin: 1.25rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(1.25rem, 4vw, 3.5rem); border-top: 1px solid var(--line); }
+.queue li { border-bottom: 1px solid var(--line); min-width: 0; }
+.queue label {
+  display: grid;
+  grid-template-columns: auto 2.1rem minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding-block: 0.8rem;
+  cursor: pointer;
+}
+.queue input { width: 1.15rem; height: 1.15rem; margin: 0; accent-color: var(--accent); cursor: pointer; }
+.queue .n { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.queue .t { font-family: var(--display); font-weight: 700; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.1; overflow-wrap: anywhere; }
+.queue .y { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+.queue input:checked ~ .t { color: var(--muted); text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: var(--accent); }
+.queue-note { margin-top: 1.25rem; color: var(--muted); font-size: 1rem; max-width: 40em; }
+
+/* Closing */
+.closing { border-top: 1px solid var(--line); padding-block: clamp(2rem, 5vw, 3.5rem); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(1.25rem, 4vw, 3.5rem); }
+.closing h2 { font-family: var(--display); font-weight: 800; font-size: clamp(1.8rem, 4vw, 2.8rem); text-transform: uppercase; line-height: 1; letter-spacing: 0.02em; }
+.closing p { max-width: 36em; }
+.closing p + p { margin-top: 0.9rem; }
+.sources { border-top: 1px solid var(--line); padding-block: 1.5rem 3rem; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(1.25rem, 4vw, 3.5rem); font-size: 1rem; }
+.sources .label { color: var(--muted); }
+.sources ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+.sources li { overflow-wrap: anywhere; }
+.foot-note { color: var(--muted); text-transform: none; letter-spacing: 0.02em; font-size: 0.8rem; margin-top: 1rem; line-height: 1.5; }
+
+
+/* Tabs and views */
+.tabs { display: inline-flex; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.tabs button {
+  font-family: var(--display); font-weight: 800; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 0.04em;
+  display: inline-flex; align-items: baseline; gap: 0.6rem;
+  padding: 0.65rem 1.3rem; background: transparent; color: var(--muted); border: 0; cursor: pointer;
+}
+.tabs button + button { border-left: 1px solid var(--line); }
+.tabs button:hover { color: var(--fg); }
+.tabs button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.tabs .c { font-family: var(--mono); font-weight: 500; font-size: 0.75rem; letter-spacing: 0.04em; }
+.view-desc { color: var(--muted); font-size: 1rem; max-width: 30em; }
+.film .tag { display: none; }
+.wrap[data-view="must"] .d-opt, .wrap[data-view="optional"] .d-must { display: none; }
+.wrap[data-view="must"] .film.is-extra { display: none; }
+.wrap[data-view="optional"] .film.is-core,
+.wrap[data-view="optional"] .must-only,
+.wrap[data-view="optional"] .core-only,
+.wrap[data-view="optional"] .era-body > p { display: none; }
+.wrap[data-view="optional"] .films { margin-top: 0.25rem; }
+
+@media (max-width: 820px) {
+  .hero-grid, .era, .watch-head, .closing, .sources { grid-template-columns: minmax(0, 1fr); }
+  .queue { grid-template-columns: minmax(0, 1fr); }
+  .era h2 { max-width: none; }
+}
+@media (max-width: 480px) {
+  .film { grid-template-columns: 3rem minmax(0, 1fr); }
+  .film .tag { grid-column: 2; justify-self: start; margin-top: 0.4rem; }
+  .pair { grid-template-columns: minmax(0, 1fr); }
+  .pair > div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); }
+}
+</style>
+
+<main class="wrap" data-view="must">
+  <header class="hero">
+    <p class="eyebrow">Road to Doomsday &middot; MCU viewing guide</p>
+    <h1>How to watch the MCU before <span>Avengers: Doomsday</span></h1>
+    <div class="hero-grid">
+      <div>
+        <p class="lede">The Marvel Cinematic Universe began with Iron Man in 2008 and grew into a large set of connected stories. Events in one film can change what happens in another, so new viewers often don&rsquo;t know where to start.</p>
+        <p class="lede">You don&rsquo;t need to watch everything. This guide follows the stories that give the most useful background, from the first Avengers team-up to the multiverse.</p>
+        <a class="skip" href="#watchlist">Short on time? Jump to the 12-title list &darr;</a>
+      </div>
+      <aside class="release">
+        <span class="label">Scheduled release</span>
+        <p class="date">December 18, 2026</p>
+        <p class="days" id="countdown"></p>
+        <p class="src">The film brings together heroes from three different universes to face a serious threat, according to Disney Movies.</p>
+      </aside>
+    </div>
+  </header>
+
+  <div class="path-intro">
+    <div class="tabs" role="group" aria-label="Choose a list">
+      <button type="button" id="tab-must" data-view="must" aria-pressed="true">Must watch <span class="c">12</span></button>
+      <button type="button" id="tab-optional" data-view="optional" aria-pressed="false">Optional <span class="c">8</span></button>
+    </div>
+    <p class="view-desc"><span class="d-must">The twelve titles that give the most useful background.</span><span class="d-opt">Eight films that add background on specific characters. Watch them if you have time.</span></p>
+  </div>
+
+  <section class="era" id="origins">
+    <div class="era-head">
+      <p class="years">2008&ndash;2011</p>
+      <h2>Start where the MCU began</h2>
+    </div>
+    <div class="era-body">
+      <p>Iron Man introduces Tony Stark, a wealthy inventor who builds a powerful suit of armor. He starts out caring mostly about his company and his own life. After a difficult experience, he decides to use his inventions to protect other people.</p>
+      <p>Tony becomes one of the central characters of the early MCU, and his choices shape many later events. The four films after it, found under Optional, each introduce a different hero and a new part of the Marvel world, which sets up the larger story.</p>
+      <ul class="films">
+        <li class="film is-core"><span class="yr">2008</span><div><span class="ttl">Iron Man</span><span class="note">Tony Stark&rsquo;s origin and the start of the MCU.</span></div><span class="tag core">Must watch</span></li>
+        <li class="film is-extra"><span class="yr">2008</span><div><span class="ttl">The Incredible Hulk</span><span class="note">Introduces another hero.</span></div><span class="tag extra">Optional</span></li>
+        <li class="film is-extra"><span class="yr">2010</span><div><span class="ttl">Iron Man 2</span><span class="note">Continues Tony Stark&rsquo;s story.</span></div><span class="tag extra">Optional</span></li>
+        <li class="film is-extra"><span class="yr">2011</span><div><span class="ttl">Thor</span><span class="note">Brings gods into the MCU.</span></div><span class="tag extra">Optional</span></li>
+        <li class="film is-extra"><span class="yr">2011</span><div><span class="ttl">Captain America: The First Avenger</span><span class="note">Introduces Steve Rogers.</span></div><span class="tag extra">Optional</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="era" id="avengers">
+    <div class="era-head">
+      <p class="years">2012&ndash;2015</p>
+      <h2>Meet the Avengers</h2>
+    </div>
+    <div class="era-body">
+      <p>In The Avengers, Iron Man, Captain America, Thor, Hulk, Black Widow and Hawkeye work together to protect Earth from an alien attack. They have different personalities and don&rsquo;t always agree, but they find that working as a team gives them a better chance.</p>
+      <p>The team doesn&rsquo;t succeed right away. The heroes have to learn to trust each other, which makes the story more than a battle between heroes and villains.</p>
+      <ul class="films">
+        <li class="film is-core"><span class="yr">2012</span><div><span class="ttl">The Avengers</span><span class="note">Six heroes form a team against an alien attack.</span></div><span class="tag core">Must watch</span></li>
+        <li class="film is-extra"><span class="yr">2014</span><div><span class="ttl">Captain America: The Winter Soldier</span><span class="note">Develops the relationships between the heroes.</span></div><span class="tag extra">Optional</span></li>
+        <li class="film is-extra"><span class="yr">2015</span><div><span class="ttl">Avengers: Age of Ultron</span><span class="note">An attempt to protect the world leads to a dangerous artificial intelligence.</span></div><span class="tag extra">Optional</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="era core-only" id="split">
+    <div class="era-head">
+      <p class="years">2016&ndash;2017</p>
+      <h2>Why the Avengers separate</h2>
+    </div>
+    <div class="era-body">
+      <p>In Captain America: Civil War, the Avengers disagree about whether governments should control their actions. Tony Stark believes rules and supervision may prevent future disasters. Steve Rogers worries that outside control could stop heroes from helping people when they are needed most.</p>
+      <p>Both sides have good reasons for their choices, so the conflict is more than good against evil. It also explains why the heroes are not always united when new dangers appear. After it, Doctor Strange brings in magic and new ideas about reality, and Thor: Ragnarok expands the cosmic side of the MCU.</p>
+      <ul class="films">
+        <li class="film is-core"><span class="yr">2016</span><div><span class="ttl">Captain America: Civil War</span><span class="note">The team splits over government oversight.</span></div><span class="tag core">Must watch</span></li>
+        <li class="film is-core"><span class="yr">2016</span><div><span class="ttl">Doctor Strange</span><span class="note">Introduces magic and new ideas about reality.</span></div><span class="tag core">Must watch</span></li>
+        <li class="film is-core"><span class="yr">2017</span><div><span class="ttl">Thor: Ragnarok</span><span class="note">Expands the cosmic side of the MCU.</span></div><span class="tag core">Must watch</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="era core-only" id="thanos">
+    <div class="era-head">
+      <p class="years">2018&ndash;2019</p>
+      <h2>Follow the story of Thanos</h2>
+    </div>
+    <div class="era-body">
+      <p>These two films bring years of connected stories to a turning point. In Infinity War, Thanos searches for the six Infinity Stones, believing they will let him solve a major problem in the universe. The Avengers, the Guardians of the Galaxy, Spider-Man and Doctor Strange all try to stop him.</p>
+      <p>Endgame follows the surviving heroes as they deal with what happened and decide how to move forward. For anyone preparing for Doomsday, these are among the most useful films. They explain the history of the Avengers and show why the relationships between characters matter.</p>
+      <ul class="films">
+        <li class="film is-core"><span class="yr">2018</span><div><span class="ttl">Avengers: Infinity War</span><span class="note">Thanos searches for the six Infinity Stones.</span></div><span class="tag core">Must watch</span></li>
+        <li class="film is-core"><span class="yr">2019</span><div><span class="ttl">Avengers: Endgame</span><span class="note">The survivors decide how to move forward.</span></div><span class="tag core">Must watch</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="era core-only" id="multiverse">
+    <div class="era-head">
+      <p class="years">2021&ndash;2022</p>
+      <h2>Explore the multiverse</h2>
+    </div>
+    <div class="era-body">
+      <p>After Endgame, Marvel looks more closely at the multiverse: the idea that different universes can exist, sometimes with different versions of familiar characters. This lets stories reach beyond a single timeline.</p>
+      <p class="aside">Knowing about the multiverse does not mean knowing what Doomsday will do. Some details haven&rsquo;t been revealed, and many online predictions are only fan theories.</p>
+      <ul class="films">
+        <li class="film is-core"><span class="yr">Series</span><div><span class="ttl">Loki (Seasons 1 and 2)</span><span class="note">Timelines, and what happens when events are changed. Streams on Disney+.</span></div><span class="tag core">Must watch</span></li>
+        <li class="film is-core"><span class="yr">2021</span><div><span class="ttl">Spider-Man: No Way Home</span><span class="note">Different versions of familiar characters become connected.</span></div><span class="tag core">Must watch</span></li>
+        <li class="film is-core"><span class="yr">2022</span><div><span class="ttl">Doctor Strange in the Multiverse of Madness</span><span class="note">Different realities, and the dangers of travelling between them.</span></div><span class="tag core">Must watch</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="era" id="newer">
+    <div class="era-head">
+      <p class="years">2022&ndash;2025</p>
+      <h2>Get to know the newer heroes</h2>
+    </div>
+    <div class="era-body">
+      <p>Marvel has kept adding characters and teams since the original Avengers story. Learning about a few of them shows how the MCU has changed.</p>
+      <p class="aside">Not every film here is equally necessary. With limited time, start with The Fantastic Four: First Steps and pick others based on the characters you want to understand.</p>
+      <ul class="films">
+        <li class="film is-extra"><span class="yr">2022</span><div><span class="ttl">Black Panther: Wakanda Forever</span><span class="note">Responsibility, loss and the future of Wakanda.</span></div><span class="tag extra">Optional</span></li>
+        <li class="film is-extra"><span class="yr">2023</span><div><span class="ttl">Ant-Man and the Wasp: Quantumania</span><span class="note">The Quantum Realm and a new challenge.</span></div><span class="tag extra">Optional</span></li>
+        <li class="film is-core"><span class="yr">2025</span><div><span class="ttl">The Fantastic Four: First Steps</span><span class="note">A different team with a long history in Marvel comics.</span></div><span class="tag core">Must watch</span></li>
+        <li class="film is-core"><span class="yr">2025</span><div><span class="ttl">Thunderbolts</span><span class="note">A team of characters with complicated histories.</span></div><span class="tag core">Must watch</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="era must-only" id="doom">
+    <div class="era-head">
+      <p class="years">One actor</p>
+      <h2>Learn about Doctor Doom</h2>
+    </div>
+    <div class="era-body">
+      <p>One of the biggest reasons fans are interested in Doomsday is Doctor Doom, played by Robert Downey Jr. Downey is best known as Tony Stark, but these are two different characters.</p>
+      <div class="pair">
+        <div>
+          <h3>Tony Stark</h3>
+          <span class="label">Iron Man</span>
+          <p>An inventor who builds a suit of armor and becomes Iron Man.</p>
+        </div>
+        <div>
+          <h3>Doctor Doom</h3>
+          <span class="label">Victor von Doom</span>
+          <p>A separate character from Marvel&rsquo;s stories. He is not simply another version of Iron Man.</p>
+        </div>
+      </div>
+      <p style="margin-top:1.5rem">The official Disney Movies page lists actors linked to several Marvel teams, including the Avengers, the Fantastic Four and characters from the X-Men films. That makes it useful to learn about the different teams before you watch.</p>
+      <div class="caution">
+        <span class="label">Confirmed or rumored?</span>
+        <p>Fans like to predict who will become friends, who will fight and which surprises are coming. These ideas are fun to discuss, but treat them as fact only when Marvel or Disney announces them.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="watch must-only" id="watchlist">
+    <div class="watch-head">
+      <h2>The 12-title shortcut</h2>
+      <p>If time is limited, this list is a practical starting point. It is a suggested viewing order, not an official one from Marvel. Release order suits beginners because it shows how the MCU developed over time.</p>
+    </div>
+    <div class="progress">
+      <div class="bar" role="progressbar" aria-label="Watched titles" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0" id="bar-wrap"><i id="bar"></i></div>
+      <span class="count" id="count">0 of 12 watched</span>
+      <button class="reset" id="reset" type="button">Clear</button>
+    </div>
+    <ol class="queue">
+      <li><label for="w1"><input type="checkbox" id="w1" data-id="iron-man"><span class="n">01</span><span class="t">Iron Man</span><span class="y">2008</span></label></li>
+      <li><label for="w2"><input type="checkbox" id="w2" data-id="avengers"><span class="n">02</span><span class="t">The Avengers</span><span class="y">2012</span></label></li>
+      <li><label for="w3"><input type="checkbox" id="w3" data-id="civil-war"><span class="n">03</span><span class="t">Captain America: Civil War</span><span class="y">2016</span></label></li>
+      <li><label for="w4"><input type="checkbox" id="w4" data-id="doctor-strange"><span class="n">04</span><span class="t">Doctor Strange</span><span class="y">2016</span></label></li>
+      <li><label for="w5"><input type="checkbox" id="w5" data-id="ragnarok"><span class="n">05</span><span class="t">Thor: Ragnarok</span><span class="y">2017</span></label></li>
+      <li><label for="w6"><input type="checkbox" id="w6" data-id="infinity-war"><span class="n">06</span><span class="t">Avengers: Infinity War</span><span class="y">2018</span></label></li>
+      <li><label for="w7"><input type="checkbox" id="w7" data-id="endgame"><span class="n">07</span><span class="t">Avengers: Endgame</span><span class="y">2019</span></label></li>
+      <li><label for="w8"><input type="checkbox" id="w8" data-id="loki"><span class="n">08</span><span class="t">Loki (Seasons 1 and 2)</span><span class="y">Series</span></label></li>
+      <li><label for="w9"><input type="checkbox" id="w9" data-id="no-way-home"><span class="n">09</span><span class="t">Spider-Man: No Way Home</span><span class="y">2021</span></label></li>
+      <li><label for="w10"><input type="checkbox" id="w10" data-id="multiverse-of-madness"><span class="n">10</span><span class="t">Doctor Strange in the Multiverse of Madness</span><span class="y">2022</span></label></li>
+      <li><label for="w11"><input type="checkbox" id="w11" data-id="fantastic-four"><span class="n">11</span><span class="t">The Fantastic Four: First Steps</span><span class="y">2025</span></label></li>
+      <li><label for="w12"><input type="checkbox" id="w12" data-id="thunderbolts"><span class="n">12</span><span class="t">Thunderbolts</span><span class="y">2025</span></label></li>
+    </ol>
+    <p class="queue-note">Your checkmarks are saved in this browser only. Other movies and shows can add background, especially if you want to learn more about particular characters.</p>
+  </section>
+
+  <section class="closing must-only">
+    <h2>Final thoughts</h2>
+    <div>
+      <p>Preparing for Avengers: Doomsday doesn&rsquo;t mean watching every Marvel movie and show. Focus on the stories that introduce the main heroes, explain the history of the Avengers and explore the multiverse.</p>
+      <p>You don&rsquo;t need to remember every small detail. Understanding the main story is a good way to enjoy the film and see why the different heroes are coming together.</p>
+    </div>
+  </section>
+
+  <footer class="sources">
+    <span class="label">Sources</span>
+    <div>
+      <ul>
+        <li><a href="https://movies.disney.com/avengers-doomsday" target="_blank" rel="noopener">Disney Movies, &ldquo;Avengers: Doomsday&rdquo;</a></li>
+        <li><a href="https://www.marvel.com/articles/culture-lifestyle/mcu-the-marvel-cinematic-universe-an-official-timeline-available-now" target="_blank" rel="noopener">Marvel.com, &ldquo;Explore the MCU with &lsquo;The Marvel Cinematic Universe: An Official Timeline&rsquo;&rdquo; (Oct. 23, 2023)</a></li>
+        <li>Majjed, Grand Chief Expert in Space Science, Supreme Authority on the Cosmic Realms, Honorary Mayor of the Underground Kingdoms, Keeper of the Multiverse and Official Doomsday Advisor (self-appointed). Trust me.</li>
+      </ul>
+      <p class="foot-note">Its me majjed</p>
+    </div>
+  </footer>
+</main>
+
+<script>
+(function () {
+  // Countdown to the scheduled release date
+  var cd = document.getElementById('countdown');
+  if (cd) {
+    var now = new Date();
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var target = new Date(2026, 11, 18);
+    var d = Math.round((target - today) / 86400000);
+    if (d > 1) cd.textContent = d + ' days to go';
+    else if (d === 1) cd.textContent = 'Opens tomorrow';
+    else if (d === 0) cd.textContent = 'Opens today';
+    else cd.textContent = 'Scheduled for December 18, 2026';
+  }
+
+
+  // Switch between the Must watch and Optional lists
+  var wrap = document.querySelector('.wrap');
+  var tabBtns = Array.prototype.slice.call(document.querySelectorAll('.tabs button'));
+  function setView(v) {
+    wrap.setAttribute('data-view', v);
+    tabBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-view') === v)); });
+  }
+  tabBtns.forEach(function (b) { b.addEventListener('click', function () { setView(b.getAttribute('data-view')); }); });
+  var skip = document.querySelector('.skip');
+  if (skip) skip.addEventListener('click', function () { setView('must'); });
+  if (location.hash === '#optional') setView('optional');
+
+  // Watched checklist, saved per browser
+  var KEY = 'road-to-doomsday-watched';
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('.queue input[type="checkbox"]'));
+  var bar = document.getElementById('bar');
+  var barWrap = document.getElementById('bar-wrap');
+  var count = document.getElementById('count');
+  var reset = document.getElementById('reset');
+
+  function load() {
+    try { var v = JSON.parse(localStorage.getItem(KEY) || '[]'); return Array.isArray(v) ? v : []; }
+    catch (e) { return []; }
+  }
+  function save(ids) {
+    try { localStorage.setItem(KEY, JSON.stringify(ids)); } catch (e) {}
+  }
+  function render() {
+    var n = boxes.filter(function (b) { return b.checked; }).length;
+    bar.style.width = (n / boxes.length * 100) + '%';
+    barWrap.setAttribute('aria-valuenow', String(n));
+    count.textContent = n + ' of ' + boxes.length + ' watched';
+  }
+  function persist() {
+    save(boxes.filter(function (b) { return b.checked; }).map(function (b) { return b.getAttribute('data-id'); }));
+  }
+
+  var saved = load();
+  boxes.forEach(function (b) {
+    b.checked = saved.indexOf(b.getAttribute('data-id')) !== -1;
+    b.addEventListener('change', function () { persist(); render(); });
+  });
+  reset.addEventListener('click', function () {
+    boxes.forEach(function (b) { b.checked = false; });
+    persist(); render();
+  });
+  render();
+})();
+</script>
